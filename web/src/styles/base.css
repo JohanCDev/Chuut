@@ -24,6 +24,7 @@ img, svg { display: block; max-width: 100%; }
 }
 
 /* Layout primitives */
+.screen { display: flex; flex-direction: column; flex: 1; }
 #root { display: flex; justify-content: center; }
 .app-column {
   position: relative;
@@ -58,6 +59,7 @@ img, svg { display: block; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
-.app-column > :not(.screen) { margin-left: 16px; margin-right: 16px; }
-.app-column > :not(.screen):first-child { margin-top: 16px; }
+/* The desktop shell is full-bleed; only loose mobile children get the gutter. */
+.app-column > :not(.screen):not(.app-shell) { margin-left: 16px; margin-right: 16px; }
+.app-column > :not(.screen):not(.app-shell):first-child { margin-top: 16px; }
 @media (min-width: 768px) { .app-column:has(> .app-shell) { max-width: none; box-shadow: none; padding-bottom: 0; } }

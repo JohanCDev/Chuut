@@ -8,7 +8,7 @@ import { useBreakpoint } from '../lib/useBreakpoint'
 import {
   Avatar, BottomBar, Button, Checkbox, ConfirmDialog, Field, PageHeader, Screen, ScreenBody, Sheet, StickyNote, TextInput, toast, TopBar,
 } from '../ui'
-import { SignOutButton } from './Shell'
+import { AuthScreen, SignOutButton } from './Shell'
 
 export function Onboarding() {
   const { user, profile } = useAuth()
@@ -27,7 +27,7 @@ export function Onboarding() {
     })
   }
   return (
-    <Screen>
+    <AuthScreen>
       <form onSubmit={submit} className="stack" style={{ flex: 1, gap: 0 }}>
         <TopBar hideBack center={<div className="progress" aria-hidden="true"><span /><span /></div>} />
         <ScreenBody gap={20}>
@@ -50,7 +50,7 @@ export function Onboarding() {
           <Button type="submit" large full loading={save.isPending}>C'est parti</Button>
         </BottomBar>
       </form>
-    </Screen>
+    </AuthScreen>
   )
 }
 

@@ -61,6 +61,23 @@ export function LoadError({ onRetry }: { onRetry: () => void }) {
   )
 }
 
+/**
+ * Screen for the signed-out flows (landing, sign up/in, onboarding). From 1024px it splits in two:
+ * a brand panel on the left, the unchanged mobile content centered on the right.
+ */
+export function AuthScreen({ children }: { children: ReactNode }) {
+  return (
+    <Screen className="screen--auth">
+      <aside className="auth-brand" aria-hidden="true">
+        <Logo size={44} color="#fff" />
+        <GiftBox width={320} />
+        <p className="auth-brand__tagline">Tes proches s'organisent.<br />Toi, tu ne vois rien.</p>
+      </aside>
+      <div className="auth-main">{children}</div>
+    </Screen>
+  )
+}
+
 export function Landing() {
   const { user, loading } = useAuth()
   const loc = useLocation()
@@ -69,7 +86,7 @@ export function Landing() {
   if (loading) return <Spinner page />
   if (user && !user.isAnonymous && !signedOut) return <Navigate to="/app" replace />
   return (
-    <Screen>
+    <AuthScreen>
       <div className="hero">
         <div className="hero__logo"><Logo size={38} color="#fff" /></div>
         <div className="hero__box"><GiftBox /></div>
@@ -89,7 +106,7 @@ export function Landing() {
         <ButtonLink to="/signup" large full>Créer ma liste</ButtonLink>
         <ButtonLink to="/login" large full variant="secondary">Se connecter</ButtonLink>
       </BottomBar>
-    </Screen>
+    </AuthScreen>
   )
 }
 
@@ -178,27 +195,27 @@ const AuthHeader = ({ kicker, title, children }: { kicker: string; title: string
 
 export function Signup() {
   return (
-    <Screen>
+    <AuthScreen>
       <TopBar center={<Logo to="/" />} />
       <AuthForm
         mode="signup"
         header={<AuthHeader kicker="Bienvenue" title="Crée ton compte">Pour créer tes listes et les retrouver sur tous tes appareils.</AuthHeader>}
         footer={<>Déjà un compte ? <Link to="/login" state={useLocation().state}>Se connecter</Link></>}
       />
-    </Screen>
+    </AuthScreen>
   )
 }
 
 export function Login() {
   return (
-    <Screen>
+    <AuthScreen>
       <TopBar center={<Logo to="/" />} />
       <AuthForm
         mode="login"
         header={<AuthHeader kicker="Content de te revoir" title="Connecte-toi">Retrouve tes listes et celles de tes proches.</AuthHeader>}
         footer={<>Pas encore de compte ? <Link to="/signup" state={useLocation().state}>Créer un compte</Link></>}
       />
-    </Screen>
+    </AuthScreen>
   )
 }
 

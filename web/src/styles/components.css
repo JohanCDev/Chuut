@@ -205,13 +205,17 @@ canvas.confetti-canvas { position: fixed; inset: 0; z-index: 100; pointer-events
 /* Auth and misc screens */
 .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: var(--fs-14); }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-.hero { position: relative; flex: none; height: 300px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+.hero { position: relative; flex: none; height: 300px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.hero, .auth-brand {
   background:
     radial-gradient(circle at 20% 35%, rgba(232, 176, 74, .55) 0 40px, transparent 41px),
     radial-gradient(circle at 70% 25%, rgba(240, 112, 122, .5) 0 34px, transparent 35px),
     radial-gradient(circle at 48% 15%, rgba(246, 214, 140, .5) 0 26px, transparent 27px),
     radial-gradient(circle at 88% 55%, rgba(232, 176, 74, .45) 0 22px, transparent 23px),
     linear-gradient(#2A1B14, #4A3020 70%, #6B4A30); }
+/* Desktop-only brand panel beside the auth screens (see desktop.css). */
+.auth-brand { display: none; }
+.auth-main { display: flex; flex-direction: column; flex: 1; }
 .hero::after { content: ''; position: absolute; inset: auto 0 0 0; height: 90px; background: linear-gradient(transparent, var(--bg)); }
 .hero__logo { position: absolute; left: 24px; top: max(20px, env(safe-area-inset-top)); }
 .hero__box { position: relative; z-index: 1; margin-top: 32px; }

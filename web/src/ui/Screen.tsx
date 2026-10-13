@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
+import { cn } from '../lib/cn'
 
 /** Page wrapper inside the app column: `<Screen>` holds header/body/BottomBar stacked full height. */
-export function Screen({ children }: { children: ReactNode }) {
-  return <div className="screen" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>{children}</div>
+export function Screen({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn('screen', className)}>{children}</div>
 }
 
 /** Padded content area between the header and the BottomBar. */

@@ -284,3 +284,25 @@
   .shortcuts__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; }
   .shortcuts__keys { display: inline-flex; gap: 4px; }
 }
+
+/* Signed-out screens: brand panel left, mobile content centered right. */
+@media (min-width: 1024px) {
+  .app-column:has(> .screen--auth) { max-width: none; box-shadow: none; padding-bottom: 0; }
+  .screen--auth { flex-direction: row; min-height: 100dvh; }
+  .auth-brand {
+    position: sticky; top: 0; height: 100dvh; flex: 1 1 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 48px;
+  }
+  .auth-brand__tagline {
+    font-family: var(--font-hand); font-weight: 600; font-size: 2.25rem; line-height: 1.15;
+    color: #fff; text-align: center; transform: rotate(-3deg);
+  }
+  .auth-main { flex: 0 0 min(50%, 640px); padding: 32px 56px; justify-content: center; }
+  .auth-main > * { width: 100%; max-width: 440px; margin-inline: auto; }
+  .screen--auth .screen-body { flex: none; }
+  .screen--auth .hero { display: none; }
+  .screen--auth .hero + .screen-body h1 { margin-top: 0 !important; }
+  .screen--auth .top-bar__center { visibility: hidden; }
+  .screen--auth form.stack { flex: none !important; }
+  .screen--auth .bottom-bar { position: static; margin-top: 8px; }
+}
