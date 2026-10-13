@@ -19,90 +19,33 @@ export function Sidebar({ collapsed, guest, onShortcuts }: {
   const claims = useMyClaims()
   const account = !!user && !user.isAnonymous
 
-  if (guest && collapsed) {
+  // Anonymous guests only get a way to sign up; account holders see the same navigation everywhere.
+  if (guest && !account && collapsed) {
     return (
       <nav className="rail" aria-label="Navigation principale">
-        <Link to={account ? '/app' : '/'} aria-label="Chuut, accueil" title="Chuut" className="rail__item">
+        <Link to="/" aria-label="Chuut, accueil" title="Chuut" className="rail__item">
           <Gift size={22} aria-hidden="true" />
         </Link>
-        {account && (
-          <>
-            <Link to="/app" aria-label="Mes listes" title="Mes listes" className="rail__item">
-              <LayoutGrid size={22} aria-hidden="true" />
-            </Link>
-            <Link to="/app?tab=joined" aria-label="Listes rejointes" title="Listes rejointes" className="rail__item">
-              <UsersRound size={22} aria-hidden="true" />
-            </Link>
-          </>
-        )}
-        <Link
-          to={account ? '/lists/new' : '/signup'}
-          aria-label={account ? 'Créer une liste' : 'Créer ma liste'}
-          title={account ? 'Créer une liste' : 'Créer ma liste'}
-          className="rail__item"
-        >
+        <Link to="/signup" aria-label="Créer ma liste" title="Créer ma liste" className="rail__item">
           <Plus size={22} aria-hidden="true" />
         </Link>
-        {account && (
-          <div className="rail__bottom">
-            <Link to="/account" aria-label="Mon compte" title="Mon compte" className="rail__item">
-              <UserRound size={22} aria-hidden="true" />
-            </Link>
-          </div>
-        )}
       </nav>
     )
   }
 
-  if (guest) {
+  if (guest && !account) {
     return (
       <nav className="sidebar" aria-label="Navigation principale">
-        <Logo size={32} to={account ? '/app' : '/'} />
-        {account ? (
-          <>
-            <ButtonLink to="/lists/new">
-              Créer une liste
-            </ButtonLink>
-            <div className="sidebar__group">
-              <Link to="/app" className="nav-item">
-                <LayoutGrid size={18} aria-hidden="true" />
-                <span className="sidebar__label">Mes listes</span>
-              </Link>
-            </div>
-            <div className="nav-section">Listes rejointes</div>
-            <div className="sidebar__group">
-              {(joined.data ?? []).map((j) => {
-                const taken = claims.data?.filter((c) => c.parentId === j.id).length ?? 0
-                return (
-                  <NavLink key={j.id} to={`/l/${j.data.slug}`} className="nav-item">
-                    <span className="sidebar__swatch" style={themeFor(j.data.type).header} aria-hidden="true" />
-                    <span className="sidebar__label">{j.data.title}</span>
-                    {taken > 0 && <span className="sidebar__badge">{taken} pris par toi</span>}
-                  </NavLink>
-                )
-              })}
-            </div>
-          </>
-        ) : (
-          <>
-            <ButtonLink to="/signup">Créer ma liste</ButtonLink>
-            <p className="muted small">Garde tes réservations en créant un compte.</p>
-          </>
-        )}
-
-        <div className="sidebar__footer">
-          {account && (
-            <Link to="/account" className="nav-item sidebar__account" aria-label="Mon compte">
-              <Avatar name={profile?.displayName} size="sm" />
-              <span className="sidebar__label">{profile?.displayName ?? 'Mon compte'}</span>
-            </Link>
-          )}
-          {onShortcuts && (
+        <Logo size={32} to="/" />
+        <ButtonLink to="/signup">Créer ma liste</ButtonLink>
+        <p className="muted small">Garde tes réservations en créant un compte.</p>
+        {onShortcuts && (
+          <div className="sidebar__footer">
             <IconButton label="Raccourcis clavier" bare onClick={onShortcuts}>
               <CircleHelp size={20} aria-hidden="true" />
             </IconButton>
-          )}
-        </div>
+          </div>
+        )}
       </nav>
     )
   }

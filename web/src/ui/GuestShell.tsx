@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth'
 import { useBreakpoint } from '../lib/useBreakpoint'
 import { useHotkeys } from '../lib/useHotkeys'
 import { cn } from '../lib/cn'
@@ -9,8 +11,12 @@ import { Sidebar } from './Sidebar'
 export function GuestShell({ children }: { children: ReactNode }) {
   const bp = useBreakpoint()
   const [help, setHelp] = useState(false)
+  const nav = useNavigate()
+  const { user } = useAuth()
+  const account = !!user && !user.isAnonymous
 
   useHotkeys([
+    ...(account ? [{ key: 'n', label: 'Créer une liste', handler: () => nav('/lists/new') }] : []),
     { key: '?', label: 'Cette aide', handler: () => setHelp(true) },
     {
       key: '/',
