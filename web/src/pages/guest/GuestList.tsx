@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Link, Navigate, Outlet, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Check, TriangleAlert, X } from 'lucide-react'
+import { Check, ChevronLeft, TriangleAlert, X } from 'lucide-react'
 import { useAuth } from '../../auth'
 import { useClaims, useInvite, useJoinedBySlug, useList, useMyMember, useOwnedListBySlug, useWishes } from '../../data/queries'
 import type { WithId } from '../../data/live'
@@ -11,7 +11,7 @@ import { useBreakpoint } from '../../lib/useBreakpoint'
 import { useHotkeys } from '../../lib/useHotkeys'
 import type { Claim, Joined, Wish } from '../../types'
 import {
-  Button, ButtonLink, EmptyBox, EmptyState, GuestShell, IconButton, ListTitle, OccasionHeader, PageHeader, Screen, ScreenBody, Spinner, Tag, WishCard,
+  Button, ButtonLink, EmptyBox, EmptyState, GuestShell, HeaderPill, IconButton, ListTitle, OccasionHeader, PageHeader, Screen, ScreenBody, Spinner, Tag, WishCard,
 } from '../../ui'
 import { LoadError, NotFound } from '../Shell'
 import { useGuestActions, type GuestCtx } from './actions'
@@ -64,6 +64,7 @@ const filterWishes = (items: WithId<Wish>[], byWish: Map<string, Claim>, me: str
 
 function GuestList({ slug, joined }: { slug: string; joined: Joined }) {
   const { user } = useAuth()
+  const account = !!user && !user.isAnonymous
   const bp = useBreakpoint()
   const nav = useNavigate()
   const loc = useLocation()
@@ -189,9 +190,15 @@ function GuestList({ slug, joined }: { slug: string; joined: Joined }) {
     setPromptDismissed(true)
   }
 
+  // Account holders get a way back to their lists; the "invitée" pill then moves right.
+  const guestPill = <span className="header-pill guest-pill">{myName} · invitée</span>
+  const headerSlots = account
+    ? { left: <HeaderPill to="/app?tab=joined"><ChevronLeft size={18} aria-hidden="true" />Mes listes</HeaderPill>, right: guestPill }
+    : { left: guestPill }
+
   if (bp === 'mobile') return (
     <Screen>
-      <OccasionHeader type={l.type} left={<span className="header-pill guest-pill">{myName} · invitée</span>} />
+      <OccasionHeader type={l.type} {...headerSlots} />
       <ScreenBody>
         <div className="guest-title-row">
           <ListTitle ownerName={l.ownerName} title={l.title} type={l.type} extra={meta} />
@@ -253,7 +260,6 @@ function GuestList({ slug, joined }: { slug: string; joined: Joined }) {
     </Screen>
   )
 
-  const account = !!user && !user.isAnonymous
   const visible = visibleWishes()
   const order = visible.map((w) => w.id)
   const tabStop = sel && order.includes(sel) ? sel : order[0]
@@ -274,7 +280,7 @@ function GuestList({ slug, joined }: { slug: string; joined: Joined }) {
             crumbs={account ? [{ label: 'Listes rejointes', to: '/app?tab=joined' }, { label: l.title }] : [{ label: l.title }]}
             search
           />
-          <OccasionHeader type={l.type} compact left={<span className="header-pill guest-pill">{myName} · invitée</span>} />
+          <OccasionHeader type={l.type} compact {...headerSlots} />
           <div className="content content--list">
             <div className="guest-title-row">
               <ListTitle card ownerName={l.ownerName} title={l.title} type={l.type} extra={meta} />

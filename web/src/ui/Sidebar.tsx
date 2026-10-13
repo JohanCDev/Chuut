@@ -26,9 +26,14 @@ export function Sidebar({ collapsed, guest, onShortcuts }: {
           <Gift size={22} aria-hidden="true" />
         </Link>
         {account && (
-          <Link to="/app?tab=joined" aria-label="Listes rejointes" title="Listes rejointes" className="rail__item">
-            <UsersRound size={22} aria-hidden="true" />
-          </Link>
+          <>
+            <Link to="/app" aria-label="Mes listes" title="Mes listes" className="rail__item">
+              <LayoutGrid size={22} aria-hidden="true" />
+            </Link>
+            <Link to="/app?tab=joined" aria-label="Listes rejointes" title="Listes rejointes" className="rail__item">
+              <UsersRound size={22} aria-hidden="true" />
+            </Link>
+          </>
         )}
         <Link
           to={account ? '/lists/new' : '/signup'}
@@ -58,6 +63,12 @@ export function Sidebar({ collapsed, guest, onShortcuts }: {
             <ButtonLink to="/lists/new">
               Créer une liste
             </ButtonLink>
+            <div className="sidebar__group">
+              <Link to="/app" className="nav-item">
+                <LayoutGrid size={18} aria-hidden="true" />
+                <span className="sidebar__label">Mes listes</span>
+              </Link>
+            </div>
             <div className="nav-section">Listes rejointes</div>
             <div className="sidebar__group">
               {(joined.data ?? []).map((j) => {
