@@ -22,6 +22,15 @@
   --outer: #EFE4D1;
   --shadow-card: 0 1px 2px rgba(60, 30, 10, .08), 0 6px 16px rgba(60, 30, 10, .06);
   --shadow-sheet: 0 -8px 32px rgba(60, 30, 10, .18);
+  --sidebar: 248px;
+  --rail: 72px;
+  --panel: 400px;
+  --drawer: 420px;
+  --content-max: 1280px;
+  --shadow-lg: 0 14px 40px rgba(60, 30, 10, .18);
+  --scrim: rgba(42, 30, 26, .4);
+  --ring: color-mix(in srgb, var(--primary) 45%, transparent);
+  --hairline: 1px solid var(--line);
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-ui: 'Figtree', system-ui, sans-serif;
@@ -68,6 +77,8 @@
     --outer: #0F0B09;
     --shadow-card: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 16px rgba(0, 0, 0, .3);
     --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 14px 40px rgba(0, 0, 0, .55);
+    --scrim: rgba(0, 0, 0, .6);
     color-scheme: dark;
   }
 }

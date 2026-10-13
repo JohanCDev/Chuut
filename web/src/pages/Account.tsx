@@ -4,8 +4,9 @@ import { ChevronRight } from 'lucide-react'
 import { useAuth } from '../auth'
 import { useDeleteAccount, useExportData, useSaveProfile } from '../data/mutations'
 import { useMyLists } from '../data/queries'
+import { useBreakpoint } from '../lib/useBreakpoint'
 import {
-  Avatar, BottomBar, Button, Checkbox, ConfirmDialog, Field, Screen, ScreenBody, Sheet, StickyNote, TextInput, toast, TopBar,
+  Avatar, BottomBar, Button, Checkbox, ConfirmDialog, Field, PageHeader, Screen, ScreenBody, Sheet, StickyNote, TextInput, toast, TopBar,
 } from '../ui'
 import { SignOutButton } from './Shell'
 
@@ -64,6 +65,7 @@ const downloadJson = (data: unknown) => {
 export function Account() {
   const { user, profile } = useAuth()
   const nav = useNavigate()
+  const bp = useBreakpoint()
   const save = useSaveProfile()
   const lists = useMyLists()
   const onShared = lists.data?.some((l) => l.data.shared) ?? false
@@ -97,7 +99,8 @@ export function Account() {
 
   return (
     <Screen>
-      <TopBar onBack={() => nav('/app')} />
+      {bp !== 'mobile' && <PageHeader crumbs={[{ label: 'Mon compte' }]} />}
+      {bp === 'mobile' && <TopBar onBack={() => nav('/app')} />}
       <ScreenBody gap={20}>
         <div className="account-head">
           <Avatar name={displayName} size="lg" />

@@ -1,12 +1,15 @@
+import { useEffect, type KeyboardEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, User } from 'lucide-react'
 import { useAuth } from '../../auth'
 import { useJoined, useMyClaims, useMyLists, type WithId } from '../../data/queries'
 import { daysUntil, formatShortDate, guestCountLabel, parseDate, wishCountLabel } from '../../lib/format'
+import { matches } from '../../lib/search'
 import { themeFor } from '../../lib/theme'
+import { useBreakpoint } from '../../lib/useBreakpoint'
 import { TYPE_LABEL, type Joined, type ListDoc } from '../../types'
 import {
-  AvatarPair, BottomBar, ButtonLink, EmptyState, Logo, Screen, ScreenBody, Spinner, Tab, TabList, TabPanel, Tabs, Tag,
+  AvatarPair, BottomBar, ButtonLink, EmptyState, Logo, PageHeader, Screen, ScreenBody, Spinner, Tab, TabList, TabPanel, Tabs, Tag,
 } from '../../ui'
 import { partnerInfo } from './partner'
 import './owner.css'
@@ -21,11 +24,12 @@ const OccasionStack = () => (
 
 const CardBand = ({ type }: { type: Joined['type'] }) => <div className="list-card__band" style={themeFor(type).header} />
 
-function MineCard({ list, uid }: { list: WithId<ListDoc>; uid?: string }) {
+/** `quick` (desktop) adds a Partager link next to the card, not nested in it. */
+function MineCard({ list, uid, quick }: { list: WithId<ListDoc>; uid?: string; quick?: boolean }) {
   const { data } = list
   const p = partnerInfo(data, uid)
-  return (
-    <Link to={`/lists/${list.id}`} className="list-card">
+  const body = (
+    <>
       <CardBand type={data.type} />
       <div className="list-card__body">
         <div className="list-card__row">
@@ -35,7 +39,14 @@ function MineCard({ list, uid }: { list: WithId<ListDoc>; uid?: string }) {
         <div className="list-card__meta">{TYPE_LABEL[data.type]} · {wishCountLabel(data.wishCount)} · {guestCountLabel(data.guestCount)}</div>
         {p.shared && <div className="list-card__shared"><AvatarPair names={p.names} />Partagée avec {p.other}</div>}
       </div>
-    </Link>
+    </>
+  )
+  if (!quick) return <Link to={`/lists/${list.id}`} className="list-card">{body}</Link>
+  return (
+    <div className="list-card-wrap">
+      <Link to={`/lists/${list.id}`} className="list-card">{body}</Link>
+      <Link to={`/lists/${list.id}`} state={{ share: true }} className="list-card__share">Partager</Link>
+    </div>
   )
 }
 
@@ -72,6 +83,17 @@ function JoinedCard({ joined, taken, changed }: { joined: WithId<Joined>; taken:
   )
 }
 
+/** Desktop: ArrowLeft/ArrowRight move focus between the list cards of the grid. */
+function arrowFocus(e: KeyboardEvent<HTMLDivElement>) {
+  if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+  const cards = Array.from(e.currentTarget.querySelectorAll<HTMLAnchorElement>('a.list-card'))
+  const i = cards.findIndex((c) => c === document.activeElement)
+  const next = cards[i + (e.key === 'ArrowRight' ? 1 : -1)]
+  if (i < 0 || !next) return
+  e.preventDefault()
+  next.focus()
+}
+
 export function Dashboard() {
   const { profile, user } = useAuth()
   const [params, setParams] = useSearchParams()
@@ -79,8 +101,81 @@ export function Dashboard() {
   const mine = useMyLists()
   const joined = useJoined()
   const claims = useMyClaims()
+  const bp = useBreakpoint()
+  const q = params.get('q') ?? ''
 
   const joinedCount = joined.data?.length ?? 0
+
+  const joinedLoaded = !!joined.data
+  useEffect(() => {
+    if (bp !== 'mobile' && tab === 'joined' && joinedLoaded) document.getElementById('joined')?.scrollIntoView()
+  }, [bp, tab, joinedLoaded])
+
+  if (bp !== 'mobile') {
+    const lists = mine.data ?? []
+    const filteredMine = lists.filter((l) => matches(q, l.data.title))
+    const filteredJoined = (joined.data ?? []).filter((j) => matches(q, j.data.title, j.data.ownerName))
+
+    const nextEvent = lists.filter((l) => l.data.eventDate && daysUntil(l.data.eventDate) >= 0)
+      .sort((a, b) => daysUntil(a.data.eventDate!) - daysUntil(b.data.eventDate!))[0]
+    const guests = lists.reduce((sum, l) => sum + l.data.guestCount, 0)
+    const summary = [
+      nextEvent && `${nextEvent.data.title} ${dateLabel(nextEvent.data.eventDate!)}`,
+      guests > 0 && `${guests} proche${guests > 1 ? 's ont' : ' a'} ouvert ton lien`,
+    ].filter(Boolean).join(' · ')
+
+    return (
+      <>
+        <PageHeader
+          crumbs={[{ label: 'Mes listes' }]}
+          search
+          actions={<ButtonLink to="/lists/new"><Plus size={18} aria-hidden="true" />Créer une liste<kbd className="kbd">N</kbd></ButtonLink>}
+        />
+        <div className="content">
+          <div className="dash-title">
+            <div className="dash-title__hello">Bonjour {profile?.displayName}</div>
+            <h1>Tes listes</h1>
+            {summary && <p className="muted">{summary}</p>}
+          </div>
+          <section>
+            <h2 className="section-title">Mes listes · {filteredMine.length}</h2>
+            {mine.isPending ? <Spinner /> : !lists.length ? (
+              <EmptyState title="Ta première liste t'attend" illustration={<OccasionStack />}>
+                Noël, anniversaire ou juste comme ça.<br />Crée-la en moins d'une minute.
+              </EmptyState>
+            ) : (
+              <>
+                {!filteredMine.length && <p className="muted">Aucune liste ne correspond.</p>}
+                <div className="list-cards" onKeyDown={arrowFocus}>
+                  {filteredMine.map((l) => <MineCard key={l.id} list={l} uid={user?.uid} quick />)}
+                  <Link to="/lists/new" className="list-card list-card--new">
+                    <Plus size={20} aria-hidden="true" />Nouvelle liste
+                  </Link>
+                </div>
+              </>
+            )}
+          </section>
+          <section id="joined">
+            <h2 className="section-title">Listes rejointes · {filteredJoined.length}</h2>
+            {joined.isPending ? <Spinner /> : !joined.data?.length ? (
+              <EmptyState title="Aucune liste rejointe">Ouvre le lien d'un proche pour retrouver sa liste ici.</EmptyState>
+            ) : (
+              <>
+                {!filteredJoined.length && <p className="muted">Aucune liste ne correspond.</p>}
+                <div className="list-cards">
+                  {filteredJoined.map((j) => {
+                    const own = claims.data?.filter((c) => c.parentId === j.id) ?? []
+                    const changed = own.filter((c) => c.data.flag === 'changed' && !c.data.flagAckAt).length
+                    return <JoinedCard key={j.id} joined={j} taken={own.length} changed={changed} />
+                  })}
+                </div>
+              </>
+            )}
+          </section>
+        </div>
+      </>
+    )
+  }
 
   return (
     <Screen>

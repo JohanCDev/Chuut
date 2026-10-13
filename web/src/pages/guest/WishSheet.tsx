@@ -3,7 +3,8 @@ import { useLocation, useNavigate, useOutletContext, useParams } from 'react-rou
 import { ArrowUpRight, Check, Heart } from 'lucide-react'
 import { useClaims, useWishes } from '../../data/queries'
 import { agree, formatDate } from '../../lib/format'
-import { Button, PriceBadge, Sheet, Spinner, Tag, WishFallback } from '../../ui'
+import { Button, PriceBadge, Sheet, SidePanel, Spinner, Tag, WishFallback } from '../../ui'
+import { useBreakpoint } from '../../lib/useBreakpoint'
 import { useAuth } from '../../auth'
 import { useGuestActions, type GuestCtx } from './actions'
 import { ChangedBadge, RemovedBadge } from './changes'
@@ -35,6 +36,7 @@ export function WishSheet() {
   const changed = !!wish && mine && !!claim && claim.seenRev < wish.rev
   const title = wish?.title ?? claim?.wishSnapshot.title ?? 'Souhait'
   const ready = !wishes.isPending && !claims.isPending
+  const bp = useBreakpoint()
 
   const confirmRelease = async () => {
     setLifting(true)
@@ -152,9 +154,17 @@ export function WishSheet() {
     )
   }
 
+  if (bp === 'mobile') {
+    return (
+      <Sheet open onOpenChange={(open) => !open && close()} title={title} hideTitle>
+        {body()}
+      </Sheet>
+    )
+  }
+
   return (
-    <Sheet open onOpenChange={(open) => !open && close()} title={title} hideTitle>
+    <SidePanel title={title} onClose={close} returnFocusTo={() => document.querySelector<HTMLElement>(`[data-wish-id="${wishId}"] a`)}>
       {body()}
-    </Sheet>
+    </SidePanel>
   )
 }

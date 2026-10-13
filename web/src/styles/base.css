@@ -60,3 +60,4 @@ img, svg { display: block; max-width: 100%; }
 }
 .app-column > :not(.screen) { margin-left: 16px; margin-right: 16px; }
 .app-column > :not(.screen):first-child { margin-top: 16px; }
+@media (min-width: 768px) { .app-column:has(> .app-shell) { max-width: none; box-shadow: none; padding-bottom: 0; } }

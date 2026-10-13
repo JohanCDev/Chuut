@@ -42,3 +42,18 @@ Plain screens (forms) use `<TopBar />` instead of `OccasionHeader`. Layout and T
 - `lib/theme.ts`: `themeFor(listType)` -> `{ label, accent, ink, header }` (Noël, Anniversaire, Autre patterns).
 - `lib/cn.ts`: class joiner.
 
+
+## Tablet and desktop layout
+
+Breakpoints: below 768px mobile (unchanged), 768-1199px tablet (icon rail, modal drawer), 1200px and up desktop (sidebar, persistent panel). Use `useBreakpoint()` (`lib/useBreakpoint.ts`) only where the JSX differs; layout-only differences live in `styles/desktop.css` inside min-width media queries.
+
+- `AppShell`: layout route for owner screens. Bare `<Outlet />` on mobile, `Sidebar` (desktop) or rail (tablet) beside `<main id="main">` above that. `GuestShell` is the same frame for the guest list.
+- `Sidebar`: lists, joined lists (with the user's own "N pris par toi" badge), account link. `collapsed` renders the rail.
+- `PageHeader`: breadcrumb, optional search bound to `?q=` (`/` focuses it), and an `actions` slot that replaces `BottomBar` at >= 768. Pages render `BottomBar` only on mobile.
+- `SidePanel`: flush right detail panel on desktop (non-modal, one left border), modal drawer on tablet. Children can render their footer into it with `createPortal` (see `OwnerListCtx.footerEl`).
+- `Menu` / `MenuItem`: anchored dropdown with roving focus.
+- `Sheet` takes `variant` (`auto`, `dialog`, `drawer`, `sheet`) and `size` (`sm`, `md`, `lg`). Mobile is always the vaul bottom sheet.
+- `WishCard layout="tile"` for the grid; `quick` shows on hover and focus-within.
+- `ShortcutsDialog` (`?`) and `useHotkeys` (`lib/useHotkeys.ts`): single-letter shortcuts are ignored while typing and on mobile.
+
+Owner screens never reveal claim state: no claimed or purchased tags, counts or labels at any width. Plum (claimed) is guest-only.

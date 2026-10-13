@@ -1,4 +1,5 @@
 import { HeartHandshake, Link as LinkIcon } from 'lucide-react'
+import type { Member, WithId } from '../../data/queries'
 import type { ListDoc } from '../../types'
 
 /** Who owns what on a list, from the viewer's side. */
@@ -23,3 +24,7 @@ export function partnerMenuRow(list: ListDoc, uid: string | undefined) {
   if (p.pending) return { icon: LinkIcon, label: 'Lien partenaire' }
   return null
 }
+
+/** Newest guests first. */
+export const sortGuests = (members: WithId<Member>[]) =>
+  [...members].sort((a, b) => (b.data.joinedAt?.toMillis() ?? 0) - (a.data.joinedAt?.toMillis() ?? 0))

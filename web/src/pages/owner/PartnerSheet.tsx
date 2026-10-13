@@ -111,7 +111,7 @@ export function PartnerSheet({ open, onOpenChange, listId, list, onLeave }: {
 
   return (
     <>
-      <Sheet open={open} onOpenChange={onOpenChange} title="Liste à deux" description={description}>
+      <Sheet open={open} onOpenChange={onOpenChange} title="Liste à deux" description={description} variant="dialog" size="md">
         <div className="partner-sheet">{body}</div>
       </Sheet>
       <ConfirmDialog

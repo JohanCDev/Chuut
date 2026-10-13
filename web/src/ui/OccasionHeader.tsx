@@ -3,26 +3,30 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import type { ListType } from '../types'
 import { themeFor } from '../lib/theme'
+import { cn } from '../lib/cn'
 
 /**
  * Patterned header for a list (pattern + accent depend on `type`), with gradient fade into the page.
  * Left: back pill (default "Mes listes", goes to `backTo` or history back) or custom `left`.
  * Right: `right`, usually <HeaderRound> or <HeaderPill>.
+ * `compact` drops the fade and shortens the bar (desktop). `hideBack` omits the default back pill when no `left` is given.
  */
-export function OccasionHeader({ type, backTo, backLabel = 'Mes listes', left, right }: {
+export function OccasionHeader({ type, backTo, backLabel = 'Mes listes', left, right, compact, hideBack }: {
   type: ListType
   backTo?: string
   backLabel?: string
   left?: ReactNode
   right?: ReactNode
+  compact?: boolean
+  hideBack?: boolean
 }) {
   const nav = useNavigate()
   const theme = themeFor(type)
   return (
-    <header className="occasion-header" style={{ ...theme.header, ['--header-ink' as string]: theme.ink }}>
+    <header className={cn('occasion-header', compact && 'occasion-header--compact')} style={{ ...theme.header, ['--header-ink' as string]: theme.ink }}>
       <div className="occasion-header__fade" />
       <div className="occasion-header__bar">
-        {left ?? (backTo
+        {left ?? (hideBack ? null : backTo
           ? <Link to={backTo} className="header-pill"><ChevronLeft size={18} aria-hidden="true" />{backLabel}</Link>
           : <button type="button" className="header-pill" onClick={() => nav(-1)}><ChevronLeft size={18} aria-hidden="true" />{backLabel}</button>)}
         {right}

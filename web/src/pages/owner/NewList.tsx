@@ -2,9 +2,10 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { useCreateList } from '../../data/mutations'
+import { useBreakpoint } from '../../lib/useBreakpoint'
 import { OCCASION_THEMES } from '../../lib/theme'
 import { TYPE_LABEL, type ListType } from '../../types'
-import { BottomBar, Button, Field, IconButton, Screen, ScreenBody, TextInput, toast } from '../../ui'
+import { BottomBar, Button, Field, IconButton, PageHeader, Screen, ScreenBody, TextInput, toast } from '../../ui'
 import './owner.css'
 
 const SHORT_LABEL: Record<ListType, string> = { christmas: 'Noël', birthday: 'Anniv.', other: 'Autre' }
@@ -13,6 +14,7 @@ const TYPES = Object.keys(TYPE_LABEL) as ListType[]
 export function NewList() {
   const nav = useNavigate()
   const create = useCreateList()
+  const bp = useBreakpoint()
   const [type, setType] = useState<ListType>('christmas')
   const [title, setTitle] = useState('')
   const [eventDate, setEventDate] = useState('')
@@ -27,8 +29,9 @@ export function NewList() {
 
   return (
     <Screen>
+      {bp !== 'mobile' && <PageHeader crumbs={[{ label: 'Mes listes', to: '/app' }, { label: 'Nouvelle liste' }]} />}
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <div className="top-bar">
+        <div className={bp === 'mobile' ? 'top-bar' : 'top-bar top-bar--shell'}>
           <IconButton label="Fermer" onClick={() => nav(-1)}><X size={22} /></IconButton>
           <div className="top-bar__center"><strong>Nouvelle liste</strong></div>
           <div className="top-bar__side" />

@@ -107,3 +107,40 @@
   min-height: 44px; padding: 0 6px; border: 0; background: none; cursor: pointer;
   color: var(--purchased); font-size: var(--fs-14); font-weight: 600; text-decoration: underline;
 }
+
+@media (min-width: 768px) {
+  .list-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .list-card--new {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 140px;
+    border: 2px dashed var(--line); background: transparent; box-shadow: none; color: var(--muted); font-weight: 600;
+  }
+  .list-card-wrap { position: relative; }
+  .list-card-wrap .list-card { height: 100%; }
+  .list-card__share {
+    position: absolute; top: 12px; right: 12px; z-index: 2; padding: 6px 12px; border-radius: 999px;
+    background: var(--surface); color: var(--text); font-size: 14px; font-weight: 600; text-decoration: none;
+    box-shadow: var(--shadow-card); opacity: 0;
+  }
+  .list-card-wrap:focus-within .list-card__share { opacity: 1; }
+  .section-title { margin: 24px 0 12px; font-size: var(--fs-22); }
+}
+
+@media (min-width: 768px) and (hover: hover) {
+  .list-card-wrap:hover .list-card__share { opacity: 1; }
+}
+
+@media (min-width: 768px) {
+  .wish-detail { display: flex; flex-direction: column; gap: 14px; }
+  .wish-detail__media { position: relative; }
+  .wish-detail__img { aspect-ratio: 4 / 3; overflow: hidden; border-radius: 14px; background: var(--surface-alt); }
+  .wish-detail__img img, .wish-detail__img svg { width: 100%; height: 100%; object-fit: cover; }
+  .wish-detail__priority { display: flex; align-items: center; gap: 4px; font-size: var(--fs-14); font-weight: 600; color: var(--primary); }
+  .wish-detail__title { font-size: var(--fs-28); line-height: 1.15; }
+  .wish-detail__link { display: inline-flex; align-items: center; gap: 4px; color: var(--purchased); font-weight: 600; }
+  .wish-detail__note { font-family: var(--font-hand); font-weight: 600; font-size: 1.5rem; line-height: 1.1; margin: 0; }
+}
+
+@media (min-width: 768px) {
+  .wish-form-embedded { display: flex; flex-direction: column; gap: 20px; }
+  .wish-form__preview { max-width: 240px; pointer-events: none; }
+}

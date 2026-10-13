@@ -5,6 +5,7 @@ import { RequireAccount, RequireGuest, Spinner } from './guards'
 import { Account, Onboarding } from './pages/Account'
 import { Landing, Layout, Login, NotFound, Signup } from './pages/Shell'
 import { Privacy, Terms } from './pages/Legal'
+import { AppShell } from './ui/AppShell'
 
 // Owner and guest screens load on demand: a guest opening an invite never downloads the owner bundle.
 const owner = () => import('./pages/Owner')
@@ -14,13 +15,12 @@ const Guests = lazy(() => owner().then((m) => ({ default: m.Guests })))
 const NewList = lazy(() => owner().then((m) => ({ default: m.NewList })))
 const OwnerList = lazy(() => owner().then((m) => ({ default: m.OwnerList })))
 const WishForm = lazy(() => owner().then((m) => ({ default: m.WishForm })))
+const WishDetail = lazy(() => owner().then((m) => ({ default: m.WishDetail })))
 const PartnerAccept = lazy(() => owner().then((m) => ({ default: m.PartnerAccept })))
 const Join = lazy(() => guest().then((m) => ({ default: m.Join })))
 const Resolver = lazy(() => guest().then((m) => ({ default: m.Resolver })))
 const Upgrade = lazy(() => guest().then((m) => ({ default: m.Upgrade })))
 const WishSheet = lazy(() => guest().then((m) => ({ default: m.WishSheet })))
-
-const acct = (el: React.ReactNode) => <RequireAccount>{el}</RequireAccount>
 
 export default function App() {
   return (
@@ -33,19 +33,23 @@ export default function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/onboarding" element={<RequireAccount allowIncomplete><Onboarding /></RequireAccount>} />
-            <Route path="/app" element={acct(<Dashboard />)} />
-            <Route path="/lists/new" element={acct(<NewList />)} />
-            <Route path="/lists/:listId" element={acct(<OwnerList />)} />
-            <Route path="/lists/:listId/wishes/new" element={acct(<WishForm mode="new" />)} />
-            <Route path="/lists/:listId/wishes/:wishId/edit" element={acct(<WishForm mode="edit" />)} />
-            <Route path="/lists/:listId/guests" element={acct(<Guests />)} />
+            <Route element={<RequireAccount><AppShell /></RequireAccount>}>
+              <Route path="/app" element={<Dashboard />} />
+              <Route path="/lists/new" element={<NewList />} />
+              <Route path="/lists/:listId" element={<OwnerList />}>
+                <Route path="wishes/new" element={<WishForm mode="new" />} />
+                <Route path="wishes/:wishId" element={<WishDetail />} />
+                <Route path="wishes/:wishId/edit" element={<WishForm mode="edit" />} />
+              </Route>
+              <Route path="/lists/:listId/guests" element={<Guests />} />
+              <Route path="/account" element={<Account />} />
+            </Route>
             <Route path="/l/:slug" element={<Resolver />}>
               <Route path="wish/:wishId" element={<WishSheet />} />
             </Route>
             <Route path="/l/:slug/join" element={<Join />} />
             <Route path="/partner/:token" element={<PartnerAccept />} />
             <Route path="/upgrade" element={<RequireGuest><Upgrade /></RequireGuest>} />
-            <Route path="/account" element={acct(<Account />)} />
             <Route path="/conditions" element={<Terms />} />
             <Route path="/confidentialite" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />

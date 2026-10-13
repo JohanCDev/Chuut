@@ -85,3 +85,9 @@
 .keep-panel__name { font-weight: 600; }
 .keep-panel__sub { font-size: var(--fs-14); }
 .keep-panel p { font-size: var(--fs-14); }
+
+/* Wish side panel (desktop/tablet): the panel heading already shows the title. */
+@media (min-width: 768px) {
+  .side-panel .guest-sheet__title, .drawer .guest-sheet__title { display: none; }
+  .side-panel .sheet__title, .drawer .sheet__title { font-size: var(--fs-22); }
+}
