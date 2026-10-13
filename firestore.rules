@@ -1,0 +1,101 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isRealUser() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    function listDoc(l) {
+      return get(/databases/$(database)/documents/lists/$(l));
+    }
+    // ownerId is the creator; ownerIds holds the creator and an optional partner.
+    function ownsData(d) {
+      return d.ownerId == request.auth.uid || request.auth.uid in d.get('ownerIds', []);
+    }
+    function isOwner(l) {
+      return signedIn() && ownsData(listDoc(l).data);
+    }
+    function isMember(l) {
+      return signedIn() && exists(/databases/$(database)/documents/lists/$(l)/members/$(request.auth.uid));
+    }
+
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+
+      match /joined/{l} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow write: if false;
+      }
+    }
+
+    // Public invite preview. Created in the same batch as the list.
+    match /shareLinks/{slug} {
+      allow read: if true;
+      allow create: if isRealUser()
+                    && getAfter(/databases/$(database)/documents/lists/$(request.resource.data.listId)).data.ownerId == request.auth.uid
+                    && getAfter(/databases/$(database)/documents/lists/$(request.resource.data.listId)).data.slug == slug;
+      allow update, delete: if false;
+    }
+
+    // Partner invite tokens: functions only.
+    match /partnerInvites/{t} {
+      allow read, write: if false;
+    }
+
+    match /lists/{l} {
+      allow create: if isRealUser()
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.resource.data.ownerIds == [request.auth.uid]
+                    && request.resource.data.ownerNames.size() == 1
+                    && request.resource.data.shared == false
+                    && !('partnerInviteToken' in request.resource.data)
+                    && request.resource.data.wishCount == 0
+                    && request.resource.data.guestCount == 0
+                    && request.resource.data.type in ['christmas', 'birthday', 'other']
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.ageConfirmedAt != null;
+      allow read: if signedIn() && (ownsData(resource.data) || isMember(l));
+      // Counts, slug and owners are locked: only functions change them.
+      allow update: if signedIn() && ownsData(resource.data)
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['title', 'type', 'eventDate', 'updatedAt']);
+      // Only the creator deletes; a partner leaves through removePartner.
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+
+      match /wishes/{w} {
+        allow read: if isOwner(l) || isMember(l);
+        allow create: if isOwner(l) && request.resource.data.rev == 0;
+        allow update: if isOwner(l)
+                      && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rev', 'lastChange']);
+        allow delete: if isOwner(l);
+      }
+
+      match /members/{m} {
+        allow read: if signedIn() && (isOwner(l) || request.auth.uid == m);
+        allow write: if false; // joinList only
+      }
+
+      match /claims/{w} {
+        // The owner is absent on purpose: no rule lets them read claims.
+        allow read: if isMember(l) && !isOwner(l);
+        allow create: if isMember(l) && !isOwner(l)
+                      && exists(/databases/$(database)/documents/lists/$(l)/wishes/$(w))
+                      && request.resource.data.claimerUid == request.auth.uid
+                      && request.resource.data.state == 'claimed'
+                      && !('flag' in request.resource.data)
+                      && !('flagAckAt' in request.resource.data);
+        allow update: if signedIn() && resource.data.claimerUid == request.auth.uid
+                      && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['state', 'purchasedAt', 'seenRev', 'flagAckAt']);
+        allow delete: if signedIn() && resource.data.claimerUid == request.auth.uid;
+      }
+    }
+
+    // Dashboard counts: collection group query on own claims only.
+    match /{path=**}/claims/{w} {
+      allow read: if signedIn() && resource.data.claimerUid == request.auth.uid;
+    }
+  }
+}

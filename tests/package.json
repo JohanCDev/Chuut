@@ -1,0 +1,7 @@
+{
+  "name": "chuut-rules-tests",
+  "private": true,
+  "scripts": { "test": "node --test rules.test.mjs",
+    "test:functions": "node --test --test-concurrency=1 partner.test.mjs" },
+  "devDependencies": { "@firebase/rules-unit-testing": "^5.0.0" }
+}

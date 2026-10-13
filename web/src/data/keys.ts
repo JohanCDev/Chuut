@@ -1,0 +1,15 @@
+export const keys = {
+  profile: (uid: string) => ['profile', uid] as const,
+  myLists: (uid: string) => ['lists', 'mine', uid] as const,
+  list: (listId: string) => ['list', listId] as const,
+  ownedBySlug: (uid: string, slug: string) => ['lists', 'owned-by-slug', uid, slug] as const,
+  wishes: (listId: string) => ['wishes', listId] as const,
+  wish: (listId: string, wishId: string) => ['wish', listId, wishId] as const,
+  members: (listId: string) => ['members', listId] as const,
+  member: (listId: string, uid: string) => ['member', listId, uid] as const,
+  joined: (uid: string) => ['joined', uid] as const,
+  claims: (listId: string) => ['claims', listId] as const,
+  myClaims: (uid: string) => ['claims', 'mine', uid] as const,
+  invite: (slug: string) => ['invite', slug] as const,
+  partnerInvite: (token: string, uid: string) => ['partner-invite', token, uid] as const,
+}

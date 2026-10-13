@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "<dev-project-id>",
+    "prod": "<prod-project-id>"
+  },
+  "targets": {
+    "<dev-project-id>": {
+      "hosting": {
+        "app": ["<dev-hosting-site>"]
+      }
+    },
+    "<prod-project-id>": {
+      "hosting": {
+        "app": ["<prod-hosting-site>"]
+      }
+    }
+  }
+}
